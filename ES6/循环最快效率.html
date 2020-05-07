@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>循环</head>
+  <body>
+    
+  </body>
+  <script>
+    /**
+                        fuzhi: 0.003173828125ms
+    循环最快效率.html:47 fuzhi2: 0.02099609375ms
+    循环最快效率.html:54 TestFor: 7.637939453125ms
+    循环最快效率.html:64 TestMap: 3.156005859375ms
+    循环最快效率.html:73 TestForEach: 4.528076171875ms
+    循环最快效率.html:80 TestFilter: 2.85595703125ms
+    循环最快效率.html:81 TestFilter.... 3 []
+    循环最快效率.html:91 Kill TestFor: 10687.28125ms // 5万双层for循环
+    循环最快效率.html:93 JS运行时间： 10746
+    循环最快效率.html:95 总运行时间： 10752
+     * 
+     * 其实各个简单的循环效率都不错，差别在于，内部的处理
+     * 多层for循环嵌套，耗时最长
+     * **/ 
+
+    // 记录任务开始时间
+    let now = Date.now()
+    deviceList = []
+    let devKey = []
+    for (let i = 0; i <= 60000; i++) {
+      let data = {
+        deviceAlias: 'ytyyyyyy' + i,
+        deviceName: 'ytyyyyyy' + i,
+        modelKey: 'YtnHvcIopjN'
+      }
+
+      deviceList.push(data)
+      devKey.push(data.modelKey)
+    }
+
+    let sev = {
+      test: []
+    }
+
+    console.time('fuzhi')
+    let sev2 = deviceList
+    console.timeEnd('fuzhi')
+
+    console.time('fuzhi2')
+    sev.test = deviceList
+    console.timeEnd('fuzhi2')
+
+    console.time('TestFor')
+    for (let i = 0; i < deviceList.length; i++) {
+      let ot = deviceList[i]
+      ot.tes = i
+    }
+    console.timeEnd('TestFor')
+    
+    console.time('TestMap')
+    deviceList.map((ot, index) => {
+      ot.test = index
+      if(devKey.indexOf(ot.modelKey) > -1) {
+        // console.log(1)
+      }
+      return ot
+    })
+    console.timeEnd('TestMap')
+
+    console.time('TestForEach')
+    deviceList.forEach((ot, index) => {
+      
+      if(devKey.indexOf(ot.modelKey) > -1) {
+        ot.test2 = index
+      }
+    })
+    console.timeEnd('TestForEach')
+
+    let nowTestFilter = Date.now()
+    console.time('TestFilter')
+    let dataddd = deviceList.filter(ot => {
+      return ot.test2 === 100000
+    })
+    console.timeEnd('TestFilter')
+    console.log('TestFilter....', Date.now() - nowTestFilter, dataddd)
+    
+    // 10 0000的双层for循环，可以使页面崩溃
+    console.time('Kill TestFor')
+    for (let i = 0; i < deviceList.length; i++) {
+      for (let i = 0; i < deviceList.length; i++) {
+        let ot = deviceList[i]
+        ot.tes = i
+      }
+    }
+    console.timeEnd('Kill TestFor')
+
+    console.log('JS运行时间：', Date.now() - now)
+    setTimeout(() => {
+      console.log('总运行时间：', Date.now() - now)
+    }, 0)
+
+  </script>
+</html>
+

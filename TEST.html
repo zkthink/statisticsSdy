@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>TEST...</title>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+</head>
+<body>
+  <p>TEST ... </p>
+  <form name="myForm">
+    <label>Form name: <input type="text" name="text1" value="Beluga"></label>
+    <p><input name="button1" type="button" value="Show Form Name"
+          onclick="this.form.text1.value = this.form.name">
+    </p>
+  </form> 
+</body>
+
+<script>
+/**
+ * 闭包结构
+ * **/
+
+const objTest = (() => {
+  return {}
+})()
+
+
+</script>
+</html>

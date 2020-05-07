@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>测试页面</title>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+</head>
+<body>
+  <p>TEST ... </p>
+</body>
+
+<script>
+/**
+ * 深拷贝10万数据的情况下：
+ * 1、loadash的 cloneDeep 方法比较慢
+ * 2、JSON的转换方法JSON.parse(JSON.stringify(json))
+ * 3、已经JSON格式，自定义克隆方法 -- 最快 -- 但自定义有局限性，需关注JSON格式
+ * **/
+
+(() => {
+  let now = Date.now()
+  let deviceList = []
+  let devKey = []
+
+  let OBJ_DATA = {
+    config: {
+      list: [],
+      list2: [],
+      list3: []
+    }
+  }
+  
+  // 已知JSON格式克隆数据
+  function cloneDeepOBJ(data) {
+    let tmpData = []
+
+    data.forEach(ele => {
+      let ot = {
+        deviceAlias: ele.deviceAlias,
+        deviceName: ele.deviceName,
+        modelKey: ele.modelKey
+      }
+
+      tmpData.push(ot)
+    });
+
+    return tmpData
+  }
+
+  for (let i = 0; i <= 100000; i++) {
+    let data = {
+      deviceAlias: 'ytyyyyyy' + i,
+      deviceName: 'ytyyyyyy' + i,
+      modelKey: 'YtnHvcIopjN'
+    }
+
+    deviceList.push(data)
+    devKey.push(data.modelKey)
+  }
+
+  // 使用cloneDeep
+  console.time('cloneDeep')
+  // let cloneDeepData = _.cloneDeep(deviceList)
+  // console.log('cloneDeepData', cloneDeepData)
+  OBJ_DATA.config.list = _.cloneDeep(deviceList)
+  console.timeEnd('cloneDeep')
+
+  // JSON的转换方法JSON.parse(JSON.stringify(json))
+  console.time('parseStringify')
+  // var cloneDeepData2 = JSON.parse(JSON.stringify(deviceList))
+  OBJ_DATA.config.list2 = JSON.parse(JSON.stringify(deviceList))
+  // console.log('cloneDeepData2', cloneDeepData2)
+  console.timeEnd('parseStringify')
+
+  // 使用自定义cloneDeepOBJ
+  console.time('defineSelf')
+  // let cloneDeepData3 = cloneDeepOBJ(deviceList)
+  OBJ_DATA.config.list3 = cloneDeepOBJ(deviceList)
+  // console.log('cloneDeepData3', cloneDeepData3)
+  console.timeEnd('defineSelf')
+
+  console.log('JS运行时间：', Date.now() - now)
+  setTimeout(() => {
+    console.log('总运行时间：', Date.now() - now)
+  }, 0)
+
+// cloneDeep: 176.61181640625ms
+// 克隆大数据.html:73 parseStringify: 95.39111328125ms
+// 克隆大数据.html:80 defineSelf: 16.515869140625ms
+// 克隆大数据.html:82 JS运行时间： 308
+// 克隆大数据.html:84 总运行时间： 313
+})()
+
+
+</script>
+</html>

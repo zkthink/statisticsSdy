@@ -1,0 +1,6 @@
+放在网站环境中运行
+
+本例子使用node起服务
+1、配置server.js
+2、启动node server.js
+3、http://localhost:9080/index.html

@@ -1,0 +1,185 @@
+vm.$on( event, callback )
+参数：
+  {string | Array<string>} event (数组只在 2.2.0+ 中支持)
+  {Function} callback
+用法：
+  监听当前实例上的自定义事件。事件可以由 vm.$emit 触发。回调函数会接收所有传入事件触发函数的额外参数。
+示例：
+  vm.$on('test', function (msg) {
+    console.log(msg)
+  })
+  vm.$emit('test', 'hi')
+  // => "hi"
+
+
+vm.$once( event, callback )
+参数：
+  {string} event
+  {Function} callback
+用法：
+  监听一个自定义事件，但是只触发一次。一旦触发之后，监听器就会被移除。
+
+
+vm.$off( [event, callback] )
+参数：
+  {string | Array<string>} event (只在 2.2.2+ 支持数组)
+  {Function} [callback]
+用法：
+  移除自定义事件监听器。
+  如果没有提供参数，则移除所有的事件监听器；
+  如果只提供了事件，则移除该事件所有的监听器；
+  如果同时提供了事件与回调，则只移除这个回调的监听器。
+
+
+vm.$emit( eventName, […args] )
+参数：
+  {string} eventName
+  [...args]
+用法：
+  触发当前实例上的事件。附加参数都会传给监听器回调。
+
+
+
+
+通过使用事件中心，允许组件自由交流，无论组件处于组件树的哪一层。由于 Vue 实例实现了一个事件分发接口，你可以通过实例化一个空的 Vue 实例来实现这个目的。
+
+比如，假设我们有个 todo 的应用结构如下：
+Todos
+├─ NewTodoInput
+└─ Todo
+   └─ DeleteTodoButton
+
+可以通过单独的事件中心管理组件间的通信：
+// 将在各处使用该事件中心
+// 组件通过它来通信
+var eventHub = new Vue()
+
+然后在组件中，可以使用 $emit，$on，$off 分别来分发、监听、取消监听事件：
+// NewTodoInput
+// ...
+methods: {
+  addTodo: function () {
+    eventHub.$emit('add-todo', { text: this.newTodoText })
+    this.newTodoText = ''
+  }
+}
+
+// DeleteTodoButton
+// ...
+methods: {
+  deleteTodo: function (id) {
+    eventHub.$emit('delete-todo', id)
+  }
+}
+
+// Todos
+// ...
+created: function () {
+  eventHub.$on('add-todo', this.addTodo)
+  eventHub.$on('delete-todo', this.deleteTodo)
+},
+// 最好在组件销毁前
+// 清除事件监听
+beforeDestroy: function () {
+  eventHub.$off('add-todo', this.addTodo)
+  eventHub.$off('delete-todo', this.deleteTodo)
+},
+methods: {
+  addTodo: function (newTodo) {
+    this.todos.push(newTodo)
+  },
+  deleteTodo: function (todoId) {
+    this.todos = this.todos.filter(function (todo) {
+      return todo.id !== todoId
+    })
+  }
+}
+
+对于大多数复杂情况，更推荐使用一个专用的状态管理层如：Vuex。
+
+
+/*****************************************************************************************************************************************************************************************************/
+
+有时候两个组件也需要通信（非父子关系）。当然Vue2.0提供了Vuex，但在简单的场景下，可以使用一个空的Vue实例作为中央事件总线
+在实际运用中，一般将Bus抽离出来 Bus.js:
+import Vue from 'vue'
+const Bus = new Vue()
+export default Bus
+
+方式一：组件调用时先引入
+经过webpack打包后可能会出现Bus局部作用域的情况，即引用的是两个不同的Bus，导致不能正常通信
+
+import Bus from './Bus'
+export default {
+  data() {
+    return {
+      .........
+    }
+  },
+  methods: {
+      ....
+      Bus.$emit('log', 120)
+  },
+}
+
+import Bus from './Bus'
+export default {
+  data() {
+    return {
+      .........
+    }
+  },
+  mounted () {
+    Bus.$on('log', content => { 
+      console.log(content)
+    });    
+  }    
+}
+
+
+方式二：当然也可以直接将Bus注入到Vue根对象中
+import Vue from 'vue'
+const Bus = new Vue()
+
+var app= new Vue({
+  el:'#app',
+  data:{
+    Bus
+  }
+})
+在子组件中通过this.$root.Bus.$on(),this.$root.Bus.$emit()来调用
+
+
+
+方式三：将bus挂载到vue.prototype上（这里用了插件的写法）
+
+// plugin/index.js
+import Bus from 'vue';
+let install = function (Vue) {
+  ... ...
+  // 设置eventBus
+  Vue.prototype.bus = new Bus();
+  ... ...
+}
+export default {install};
+
+// main.js
+import Vue from 'vue';
+import plugin from './plugin/index';
+... ...
+Vue.use(plugin);
+... ...
+
+组件中定义
+... ...
+created () {
+  this.bus.$on('updateData', this.getdata);
+}
+
+组件中调用
+this.bus.$emit('updateData', {loading: false});
+注意：注册的总线事件要在组件销毁时卸载，否则会多次挂载，造成触发一次但多个响应的情况
+
+beforeDestroy () {
+  this.bus.$off('updateData', this.getData);
+}

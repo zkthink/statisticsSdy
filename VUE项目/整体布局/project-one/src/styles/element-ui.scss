@@ -1,0 +1,97 @@
+@import "./variables";
+//覆盖一些element-ui样式
+
+ .el-breadcrumb__inner,
+ .el-breadcrumb__inner a {
+   font-weight: 400 !important;
+ }
+
+ .el-upload {
+   input[type="file"] {
+     display: none !important;
+   }
+ }
+
+ .el-upload__input {
+   display: none;
+ }
+
+ .cell {
+   .el-tag {
+     margin-right: 0px;
+   }
+ }
+
+ .fixed-width {
+   .el-button--mini {
+     padding: 7px 10px;
+     width: 60px;
+   }
+ }
+
+ //暂时性解决dialog 问题 https://github.com/ElemeFE/element/issues/2461
+ .el-dialog {
+   transform: none;
+   left: 0;
+   position: relative;
+   margin: 0 auto;
+ }
+
+ //dropdown
+ .el-dropdown-menu {
+   a {
+     display: block
+   }
+ }
+
+ //后面的改动
+ .el-table th,
+ .el-table tr {
+   height: 50px;
+ }
+
+ .el-table thead {
+   color: #333;
+ }
+
+ .el-table th {
+   background: rgba(245, 247, 250, 1);
+ }
+
+ .el-table--enable-row-hover .el-table__body tr:hover>td {
+   background: #f1f4fb;
+ }
+
+ .el-dialog__wrapper {
+   .el-dialog {
+     width: 550px;
+
+     .el-dialog__body {
+      //  max-height: 600px;
+       overflow: auto;
+     }
+   }
+ }
+
+ .full.el-dialog__wrapper .el-dialog .el-dialog__body {
+   max-height: 80%;
+   overflow: auto;
+ }
+
+ .full.el-dialog__wrapper .el-dialog .el-dialog__footer {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+}
+
+ // 树节点选择高亮
+ .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content {
+   background-color: mix(#fff, $primaryColor, 80%) !important;
+ }
+
+ .el-tooltip__popper {
+   max-width: 400px;
+   line-height: 180%;
+   word-break:break-all;
+   //  word-wrap:break-word;
+ }
