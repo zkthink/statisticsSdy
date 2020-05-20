@@ -5,7 +5,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 import '@/styles/index.scss' // global css
 
 import router from './router'
-import Vuex from 'vuex'
+import store from './store' // vuex变为store
 
 // 使用vuex时，一般不用事件总线
 import Bus from './utils/bus';
@@ -15,7 +15,6 @@ import './icons/svg/iconfont'
 import './icons'
 
 Vue.use(ElementUI)
-Vue.use(Vuex)
 Vue.use(Bus)
 
 Vue.config.productionTip = false
@@ -26,5 +25,6 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')

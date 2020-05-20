@@ -8,6 +8,9 @@ import Layout from '@/views/layout/index'
 
 Vue.use(Router)
 
+const errorPage = () => import('@/views/errorPage/404')
+const dashboard = () => import('@/views/dashboard/index')
+
 // 2. 定义路由
 // 每个路由应该映射一个组件。 其中"component" 可以是
 // 通过 Vue.extend() 创建的组件构造器，
@@ -16,7 +19,7 @@ Vue.use(Router)
 export const constantRouterMap = [
   {
     path: '/404',
-    component: () => import('@/views/errorPage/404'),
+    component: errorPage,
     hidden: true
   },
   {
@@ -31,7 +34,7 @@ export const constantRouterMap = [
     redirect: '/dashboard/index',
     children: [{
       path: 'index',
-      component: () => import('@/views/dashboard/index'),
+      component: dashboard,
       name: 'icons',
       meta: {
         title: 'dashboard',

@@ -37,8 +37,12 @@
 // npm config set registry http://127.0.0.1:4873
 // 全局配置切换到官方源
 // npm config set registry http://www.npmjs.org
+
 // 查看源，可以看到设置过的所有的源
 // npm config get registry
+// 显示当前的镜像网址 -- 与上面相比并没有区别呀
+// npm get registry
+
 // 检测当前源
 // npm info underscore
 
