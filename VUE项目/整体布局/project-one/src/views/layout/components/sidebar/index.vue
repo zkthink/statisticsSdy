@@ -1,5 +1,5 @@
 <template>
-    <div class="sidebar-container" :class="isCollapse ? 'collapse' : 'no-collapse'">
+    <div class="sidebar-container">
       <div class="el-scrollbar__wrap">
         <div class="el-scrollbar__view" :class="isCollapse ? 'collapse' : 'no-collapse'">
           <CollapseSvg :toggleClick="toggleSideBar" :isActive="isCollapse"></CollapseSvg>
@@ -62,8 +62,10 @@ export default {
     },
 
     toggleSideBar() {
-      this.isCollapse = !this.isCollapse
-      this.Bus.$emit('isCollapse', this.isCollapse);
+      const isCollapse = !this.isCollapse
+      this.Bus.$emit('isCollapse', isCollapse);
+      
+      this.isCollapse = isCollapse
     },
 
     goPath(path) {
@@ -98,6 +100,7 @@ export default {
     // width: 190px; // 使用绝对定位时，可使用宽度设定
     overflow-x: hidden;
     overflow-y: auto;
+    background-color: aqua;
     
     // 第三层：实现隐藏滑动条--原理就是父元素负责滚动，子元素负责遮盖
     .el-scrollbar__view {

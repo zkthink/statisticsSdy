@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- 
+  注意，这里只是实现思路的还原，对于里面各种细节的实现，比如说数组里面数据的操作的监听，以及对象嵌套这些细节本实例都不会涉及到，
+  如果想了解更加细节的实现，可以通过阅读源码 observer文件夹以及instance文件夹里面的state文件具体了解。
+ -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="demo">
+    <div v-text="text"></div>
+  </div>
+</body>
+
+<script>
+  // 首先，我们先定义好实现vue对象的结构
+  class Vue {
+    constructor(options) {
+      this.$options = options;
+      this._data = options.data;
+      this.$el = document.querySelector(options.el);
+
+      Object.keys(options.data).forEach(key => this._proxy(key))
+      observer(options.data)
+      watch(this, this._render.bind(this), this._update.bind(this))
+    }
+    // 用一个代理实现将我们对data的数据访问绑定在vue对象上
+    _proxy(key) {
+      const self = this
+      Object.defineProperty(self, key, {
+        configurable: true,
+        enumerable: true,
+        get: function proxyGetter() {
+          return self._data[key]
+        },
+        set: function proxySetter(val) {
+          self._data[key] = val
+        }
+      })
+    }
+    // 更新页面内容
+    _update() {
+      console.log("我需要更新");
+      this._render.call(this)
+    }
+    // 首次渲染
+    _render() {
+      this._bindText();
+    }
+    _bindText() {
+      let textDOMs = this.$el.querySelectorAll('[v-text]');
+      let bindText;
+
+      for (let i = 0; i < textDOMs.length; i++) {
+        bindText = textDOMs[i].getAttribute('v-text');
+        // 此处触发vue实例的get方法
+        let data = this._data[bindText];
+        if (data) {
+          textDOMs[i].innerHTML = data;
+        }
+      }
+    }
+  }
+
+  /**
+   * 一、将data下面的属性变为observable -- 观察者/观测者
+   * 使用Object.defineProperty对数据对象做属性get和set的监听，当有数据读取和赋值操作时则调用节点的指令，这样使用最通用的=等号赋值就可以触发了
+   * **/
+  function observer(value, cb) {
+    Object.keys(value).forEach((key) => defineReactive(value, key, value[key], cb))
+  }
+
+  // 数据劫持，监控数据变化
+  function defineReactive(obj, key, val, cb) {
+    const dep = new Dep()
+    Object.defineProperty(obj, key, {
+      enumerable: true,
+      configurable: true,
+      get: () => {
+        if (Dep.target) {
+          // 我认为这里有bug因为每次获取数据，订阅者都会新增 Dep.target 都会新增一次
+          console.log('val', val)
+          dep.add(Dep.target)
+        }
+        return val
+      },
+      set: newVal => {
+        if (newVal === val)
+          return
+        val = newVal
+        dep.notify()
+      }
+    })
+  }
+  
+  // watch 初始化数据
+  function watch(vm, exp, cb) {
+    /**
+     * 初始化 Dep.target 订阅器
+     * **/ 
+    Dep.target = new Watcher(vm, cb);
+    /**
+     * exp 是先执行一下render函数，就可以知道视图的更新需要哪些数据的支持，并把它记录为数据的订阅者。拆分描述如下：
+     * 1.触发vue实例_proxy的get方法 --> 触发观测者的get方法 --> 使订阅者记录当前Dep.target --> 返回数据
+     * 2.首次渲染数据
+     * **/
+    return exp()
+  }
+
+  /**
+   * 三、实现一个 Watcher
+   * Watcher的实现比较简单，其实就是执行数据变化时我们要执行的操作
+   * **/ 
+  class Watcher {
+    constructor(vm, cb) {
+      this.cb = cb
+      this.vm = vm
+    }
+    update() {
+      this.run()
+    }
+    run() {
+      this.cb.call(this.vm)
+    }
+  }
+
+  /***
+   * 二、实现一个消息订阅器
+   * 很简单，我们维护一个数组，这个数组，就放订阅者，一旦触发 notify ，订阅者就调用自己的 update 方法
+   * **/ 
+  class Dep {
+    constructor() {
+      this.subs = []
+    }
+    add(watcher) {
+      this.subs.push(watcher)
+      console.log('this.subs', this.subs)
+    }
+    notify() {
+      this.subs.forEach((watcher) => watcher.cb())
+    }
+  }
+  
+  // 初始化数据
+  Dep.target = null
+  var demo = new Vue({ el: '#demo', data: { text: "hello world" } })
+
+  // 利用定时器，模仿异步刷新数据
+  setTimeout(function () {
+    demo.text = "hello new world"
+  }, 3000)
+
+</script>
+
+</html>

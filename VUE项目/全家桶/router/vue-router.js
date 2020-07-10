@@ -1,3 +1,6 @@
+import {a89} from './test.vue'
+console.log('a89', a89);
+
 (function () {
   // 0. 如果使用模块化机制编程，导入Vue和VueRouter，要调用 Vue.use(VueRouter)
   // import home from './home'

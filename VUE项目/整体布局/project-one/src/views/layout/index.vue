@@ -76,7 +76,6 @@ export default {
   top: 60px;
   bottom: 0;
   left: 0;
-  background-color: aqua;
 }
 
 .Sidebar-box::-webkit-scrollbar {
